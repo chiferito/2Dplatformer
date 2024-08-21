@@ -16,16 +16,27 @@ public class FireTrap : MonoBehaviour
     private bool triggered;
     private bool active;
 
+    private Health playerHealth;
+
     private void Awake()
     {
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void Update()
+    {
+        if (playerHealth != null && active)
+        {
+            playerHealth.TakeDamage(damage);
+        }
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player")
         {
+            playerHealth = collision.GetComponent<Health>();
+
             if (!triggered)
             {
                 //trigger
@@ -53,5 +64,13 @@ public class FireTrap : MonoBehaviour
         active = false;
         triggered = false;
         anim.SetBool("activated", false);
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
+        {
+            playerHealth = null;
+        }
     }
 }

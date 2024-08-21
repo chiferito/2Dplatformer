@@ -15,6 +15,10 @@ public class Health : MonoBehaviour
     [SerializeField] private int numberOffFlashes;
     private SpriteRenderer spriteRenderer;
 
+    [Header("Components")]
+    [SerializeField] Behaviour[] components;
+    private bool invulnerable;
+
     private void Awake()
     {
         currentHealth = startingHealth;
@@ -24,6 +28,7 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(float _damage)
     {
+        if (invulnerable) return;
         currentHealth = Mathf.Clamp(currentHealth - _damage, 0, startingHealth);
 
         if (currentHealth > 0)
@@ -40,7 +45,20 @@ public class Health : MonoBehaviour
             if(!dead)
             {
                 anim.SetTrigger("die");
-                GetComponent<PlayerMovement>().enabled = false;
+
+                //if(GetComponent<PlayerMovement>() != null)
+                //    GetComponent<PlayerMovement>().enabled = false;
+
+                //if(GetComponentInParent<EnemyPatrol>() != null)
+                //    GetComponentInParent<EnemyPatrol>().enabled = false;
+
+                //if(GetComponent<MeleeEnemy>() != null)
+                //    GetComponent<MeleeEnemy>().enabled = false;
+                
+                foreach (Behaviour comp in components)
+                {
+                    comp.enabled = false;
+                }
                 dead = true;
             }
             
@@ -54,6 +72,7 @@ public class Health : MonoBehaviour
 
     private IEnumerator Invulnerability()
     {
+        invulnerable = true;
         Physics2D.IgnoreLayerCollision(8,9, true);
         //invulnerable
         for (int i = 0; i < numberOffFlashes; i++)
@@ -64,6 +83,7 @@ public class Health : MonoBehaviour
             yield return new WaitForSeconds(iFrameDuration / (numberOffFlashes * 2));
         }
         Physics2D.IgnoreLayerCollision(8, 9, false);
+        invulnerable = false;
     }
 
     //public void Update() 
@@ -71,4 +91,8 @@ public class Health : MonoBehaviour
     //    if(Input.GetKeyDown(KeyCode.E) )
     //        TakeDamage(1);
     //}
+    private void Deactivate()
+    {
+        gameObject.SetActive(false);
+    }
 }
